@@ -30,7 +30,7 @@ int numOfFiles;
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofBackground(0,0,0);
-    ofSetVerticalSync(true);
+    ofSetVerticalSync(false);
 
     loopNumber =0; // initialise loops to off
     loopMax=5; // max times to loop each movie - controllable via gui
@@ -44,7 +44,7 @@ void ofApp::setup(){
     gui.add( fadeSpeed.setup( "fadeSpeed", 5, 1, 10 ) );
     gui.add( videoAlpha.setup( "alpha", 255, 0, 255 ) );
     gui.add( fade.setup( "fade", false));
-    showGui = false;
+    showGui = true;
 
     momentMovie.setPixelFormat(OF_PIXELS_NATIVE);
     // CGDisplayHideCursor(kCGDirectMainDisplay);
@@ -92,9 +92,9 @@ void ofApp::loadNew(){
 	movieDuration = momentMovie.getTotalNumFrames();
     startRange= 0;//reset for easing function
     endRange = movieDuration;
-    if (fade){
-        xFade(); // if xfade is selected in gui then perform xfade.
-    }
+//    if (fade){
+//        xFade(); // if xfade is selected in gui then perform xfade.
+//    }
 }
 
 //--------------------------------------------------------------
@@ -121,47 +121,19 @@ void ofApp::xFade(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    if (loopNumber>=loopMax){
+        this->loadNew();
+    }
 
     momentMovie.update();
-    
-        if (loopNumber>=loopMax){
-            this->loadNew();
-        }
-
-//    if(playForward){
-//        if(currentFrame<movieDuration){
-//            currentFrame++;
-//        }else{
-//            playForward = false; //got to the end - turn round
-//            currentFrame--;
-//        }
-//    }else{
-//        if (currentFrame>0){
-//            currentFrame--;
-//        }else{
-//            playForward = true; //got to the beginning - turn round
-//            if (loopNumber>=loopMax){
-//                this->loadNew();
-//            } else{
-//                currentFrame++;
-//                loopNumber ++;
-//            }
-//        }
-//    }
-
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    if (fade) xFade(); // if fade selected in gui then call xfade function
+   // if (fade) xFade(); // if fade selected in gui then call xfade function
 
-    //-- draw easing fuctiuons
-//    ofSetColor(255);
-//    auto h = 20;
-//    auto y = 20;
-//    auto i = 0;
-    //float newNow=0.f;
+    
     float now = ofGetElapsedTimef();
 
     if (ofGetElapsedTimef() > endTime) {// start a loop left to right
@@ -179,12 +151,11 @@ void ofApp::draw(){
     }
 
     easedFrame=ofxeasing::map_clamp(now, initTime, endTime, startRange, endRange, &ofxeasing::cubic::easeInOut);
-    //ofDrawRectangle(easedFrame, 100, h, h); //start and ease in
     // cout << easedFrame ;
     momentMovie.setFrame(easedFrame);
     momentMovie.draw(0,0,ofGetWidth(),ofGetHeight()); //draw frame of movie
 
-    //ofDrawBitmapString(ofGetFrameRate(),10,10);
+    //ofDrawBitmapString(easedFrame(),10,10);
     if ( showGui ) gui.draw();
 }
 
