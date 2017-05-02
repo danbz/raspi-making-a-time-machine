@@ -2,18 +2,13 @@
 #include "ofMath.h"
 #include "ofxGui.h"
 #include "ofxEasing.h"
+#include "ofUtils.cpp"
 
-float timeNow;
-float timeLimit;
-float randomNumber;
 int loopNumber;
 int loopMax;
-int totalMovies;
 int movieDuration;
 int currentFrame;
 bool playForward;
-
-int vdoNr;
 bool showGui;
 bool xFading = false;
 int xFadeProgress = 0;
@@ -25,27 +20,23 @@ int fadeSpeed;
 auto duration = 10.f;
 float initTime = 0;
 auto endTime = initTime + duration;
-bool leftToRight = true;
+//bool leftToRight = false;
 int startRange;
 int endRange;
 float endPosition;
 float easedFrame;
+int numOfFiles;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofBackground(0,0,0);
     ofSetVerticalSync(true);
 
-    timeLimit = 4;// this represents the five seconds you want to set as a flag to call
-    timeNow = 0;// always a good practice to define your variables in setup.
     loopNumber =0; // initialise loops to off
     loopMax=5; // max times to loop each movie - controllable via gui
-    vdoNr=1; //starting random number for selecting movie
-    totalMovies=6; //total amount of movies available to be played
-
     movieDuration=0;
     currentFrame=0;
-
+    playForward = true;
     //build gui group
     gui.setup( "Parameters", "settings.xml" );
     gui.add( duration.setup( "duration", 5.0, 1.0, 10.0 ) );
@@ -53,10 +44,9 @@ void ofApp::setup(){
     gui.add( fadeSpeed.setup( "fadeSpeed", 5, 1, 10 ) );
     gui.add( videoAlpha.setup( "alpha", 255, 0, 255 ) );
     gui.add( fade.setup( "fade", false));
-    //gui.add( palindrome.setup( "palindrome", false));
-    showGui = true;
+    showGui = false;
 
-momentMovie.setPixelFormat(OF_PIXELS_NATIVE);
+    momentMovie.setPixelFormat(OF_PIXELS_NATIVE);
     // CGDisplayHideCursor(kCGDirectMainDisplay);
 
     //--- easing stuff
@@ -64,30 +54,44 @@ momentMovie.setPixelFormat(OF_PIXELS_NATIVE);
     easedFrame =0.f;
     startRange= 0;
     endRange = 0;
+    
+    momentMovie.setPixelFormat(OF_PIXELS_NATIVE);
+    
+    //ofRestoreWorkingDirectoryToDefault();
+    cout << "dataPathRoot(): " <<  dataPathRoot()  << endl; // prints-> dataPathRoot(): ../../../data/
+    
+    //read directory for number of files
+    files.allowExt("mov");
+    //string path = "/Users/danbuzzo/Desktop/lapses";
+    string path = "movies"; //relative to /bin/data folder
+    
+    files.listDir(path); // put a video path here with several video files in a folder
+    std::cout << "number of files" << files.size() << endl;
+    numOfFiles = files.size() & INT_MAX;;
 
  	this->loadNew();
 }
 
 //--------------------------------------------------------------
 void ofApp::loadNew(){
-    loopNumber =0; // initialise loops to zero
-    vdoNr = (int) ofRandom(1, totalMovies);
-    std::cout << "playing video loop: " << vdoNr << endl;
-     //std::cout << "loopDone: " << loopNumber << endl;
-     //if (momentMovie.isLoaded())momentMovie.closeMovie();
-
-    vidImage.grabScreen(0,0, ofGetWidth(), ofGetHeight() ); // grab last frame of current video
-    momentMovie.load("movies/loop" + ofToString(vdoNr) +".mov"); //choose new clip randomly
-
-
-    //momentMovie.load("movies/loop1.mov"); //choose new clip for test comparison
-	momentMovie.setLoopState(OF_LOOP_NONE);
-    momentMovie.play();
-    momentMovie.setSpeed(0);
-	movieDuration = momentMovie.getTotalNumFrames();
+    loopNumber =0; // initialise loops to zero, frames to zero and set fading and forward
+    currentFrame=0;
+    playForward = true;
     xFading = true; // set flag to show we should be xFading as a new clip has been loaded
     videoAlpha=0; // set alpha of video clip to 0 in preparation to xFade
+    
+    // std::cout << "loopDone: " << loopNumber << endl;
+    // if (momentMovie.isLoaded())momentMovie.closeMovie();
 
+    vidImage.grabScreen(0,0, ofGetWidth(), ofGetHeight() ); // grab last frame of current video
+    string newMovie = files.getPath(ofRandom(numOfFiles));
+    std::cout << newMovie <<endl;
+    momentMovie.load(newMovie);
+	momentMovie.setLoopState(OF_LOOP_NONE);
+ 
+	movieDuration = momentMovie.getTotalNumFrames();
+    startRange= 0;//reset for easing function
+    endRange = movieDuration;
     if (fade){
         xFade(); // if xfade is selected in gui then perform xfade.
     }
@@ -118,73 +122,53 @@ void ofApp::xFade(){
 //--------------------------------------------------------------
 void ofApp::update(){
 
-//    if(momentMovie.getIsMovieDone()){ //old routine to swap movies on a timed basis
-//        //-- std::cout << "loopDone: " << loopNumber << endl;
-//        //--- hold last frame of previous loop of video to prevent flash of black -- maybe -- start
-//        vidImage.grabScreen(0,0, ofGetWidth(), ofGetHeight() ); // grab last frame of current video
-//        ofSetColor( 255, 255 ); // draw the captured last frame of the previosu video
-//        vidImage.draw( 0, 0, ofGetWidth(), ofGetHeight() );
-//        //--- hold last frame - end
+    momentMovie.update();
+    
         if (loopNumber>=loopMax){
             this->loadNew();
+        }
+
+//    if(playForward){
+//        if(currentFrame<movieDuration){
+//            currentFrame++;
 //        }else{
-//            loopNumber ++;
-//            momentMovie.load("lge-movies/lapse-" + ofToString(vdoNr) +".mov");
-//            momentMovie.setLoopState(OF_LOOP_NONE);
-//            momentMovie.play();
-        }
-//    } //end of old routine to swap movies
-
-    momentMovie.update();
-
-    if(playForward){
-        if(currentFrame<movieDuration){
-            currentFrame++;
-        }else{
-            playForward = false; //got to the end - turn round
-            currentFrame--;
-        }
-    }else{
-        if (currentFrame>0){
-            currentFrame--;
-        }else{
-            playForward = true; //got to the beginning - turn round
-            if (loopNumber>=loopMax){
-                this->loadNew();
-            } else{
-                currentFrame++;
-                loopNumber ++;
-            }
-        }
-    }
-
+//            playForward = false; //got to the end - turn round
+//            currentFrame--;
+//        }
+//    }else{
+//        if (currentFrame>0){
+//            currentFrame--;
+//        }else{
+//            playForward = true; //got to the beginning - turn round
+//            if (loopNumber>=loopMax){
+//                this->loadNew();
+//            } else{
+//                currentFrame++;
+//                loopNumber ++;
+//            }
+//        }
+//    }
 
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    //if (blackGap == 0){
-    // momentMovie.draw(0,0,ofGetWidth(),ofGetHeight()); //use to insert black space between each video
-    //}
-    // ofSetColor(ofColor::white);//write debug framerate to screen
-    //  ofDrawBitmapString("value: " + ofToString(vdoNr), 10, 10);
-
+    
     if (fade) xFade(); // if fade selected in gui then call xfade function
 
-
     //-- draw easing fuctiuons
-    ofSetColor(255);
-    auto h = 20;
-    auto y = 20;
-    auto i = 0;
+//    ofSetColor(255);
+//    auto h = 20;
+//    auto y = 20;
+//    auto i = 0;
     //float newNow=0.f;
     float now = ofGetElapsedTimef();
 
     if (ofGetElapsedTimef() > endTime) {// start a loop left to right
         initTime = ofGetElapsedTimef();
         endTime = initTime + duration;
-        leftToRight = !leftToRight;
-        if (leftToRight){
+        playForward = !playForward;
+        if (playForward){
             startRange= 0;
             endRange = movieDuration;
         } else {
@@ -200,8 +184,8 @@ void ofApp::draw(){
     momentMovie.setFrame(easedFrame);
     momentMovie.draw(0,0,ofGetWidth(),ofGetHeight()); //draw frame of movie
 
-    ofDrawBitmapString(ofGetFrameRate(),10,10);
-      if ( showGui ) gui.draw();
+    //ofDrawBitmapString(ofGetFrameRate(),10,10);
+    if ( showGui ) gui.draw();
 }
 
 //--------------------------------------------------------------

@@ -29,7 +29,6 @@ public:
     void xFade();
     void loadFiles();
     
-    
     ofVideoPlayer 		momentMovie;
     ofImage             vidImage;
     
@@ -43,6 +42,5 @@ public:
     //ofxVec2Slider size;
     //ofxColorSlider color;
     
-    
-    
+    ofDirectory files;
 };

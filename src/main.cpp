@@ -3,7 +3,7 @@
 
 //========================================================================
 int main( ){
-	//ofSetupOpenGL(768,576,OF_FULLSCREEN);			// <-------- setup the GL context
+	//ofSetupOpenGL(1280,720,OF_FULLSCREEN);			// <-------- setup the GL context
 
 	// this kicks off the running of my app
 	// can be OF_WINDOW or OF_FULLSCREEN
@@ -15,10 +15,13 @@ int main( ){
 
 	//ofSetLogLevel(OF_LOG_VERBOSE);
 	ofGLESWindowSettings settings;
-	settings.width = 800;
-	settings.height = 480;
+	//settings.width = 800;
+	//settings.height = 480;
+    
+    settings.width = 1280;
+    settings.height = 720;
 	settings.setGLESVersion(2);
-	ofCreateWindow(settings);
+    ofCreateWindow(settings);
 
 ofRunApp(new ofApp());
 
