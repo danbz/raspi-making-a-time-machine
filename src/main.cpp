@@ -1,5 +1,6 @@
 #include "ofMain.h"
 #include "ofApp.h"
+#include "ofClock.h"
 
 //========================================================================
 int main( ){
