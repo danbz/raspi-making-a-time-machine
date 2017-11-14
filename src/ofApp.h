@@ -6,14 +6,15 @@
 #include <string>
 #include <iostream>
 #include "ofxEasing.h"
+#include "ofClock.h"
 
-class ofApp : public ofBaseApp{ 
-    
+class ofApp : public ofBaseApp{
+
 public:
     void setup();
     void update();
     void draw();
-    
+
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y );
@@ -28,19 +29,24 @@ public:
     void loadNew();
     void xFade();
     void loadFiles();
-    
+
     ofVideoPlayer 		momentMovie;
     ofImage             vidImage;
-    
+
     ofxPanel gui;
     ofxFloatSlider duration;
     ofxIntSlider loopMax, videoAlpha, fadeSpeed;
     ofxToggle fade;
-    
+
     //ofxGuiGroup primGroup;
     //ofxFloatSlider speed, length;
     //ofxVec2Slider size;
     //ofxColorSlider color;
-    
+
     ofDirectory files;
+
+    // - clock additions
+    ofClock clock;
+
+
 };
