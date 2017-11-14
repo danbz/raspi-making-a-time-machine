@@ -45,8 +45,8 @@ void ofApp::setup(){
     gui.add( loopMax.setup( "loopMax", 5, 1, 10 ) );
     gui.add( fadeSpeed.setup( "fadeSpeed", 5, 1, 10 ) );
     gui.add( videoAlpha.setup( "alpha", 255, 0, 255 ) );
-    gui.add( fade.setup( "fade", false));
-    showGui = true;
+    gui.add( fade.setup( "fade", true));
+    showGui = false;
     showClock = true;
     playForward = true;
     
@@ -80,7 +80,7 @@ void ofApp::setup(){
     clockPosTop = ofGetHeight()-110;;
     clock.setup();
     
-   // ofHideCursor();
+    //ofHideCursor();
 }
 
 //--------------------------------------------------------------
@@ -135,8 +135,6 @@ void ofApp::update(){
     if (loopNumber>=loopMax){
         this->loadNew();
     }
-
-    momentMovie.update();
     
     //--clock updates
     time_t t = time(0);   // get time now
@@ -147,16 +145,9 @@ void ofApp::update(){
     clockHrs = easedFrame/60;
     // clockHrs = now->tm_hour;
     clock.update(clockSec, clockMin, clockHrs);
-}
-
-//--------------------------------------------------------------
-void ofApp::draw(){    
-    if (fade) xFade(); // if fade selected in gui then call xfade function
-   
-    //ofSetColor(255);
-
-    float now = ofGetElapsedTimef();
-
+    
+    float thisNow = ofGetElapsedTimef();
+    
     if (ofGetElapsedTimef() > endTime) {// start a loop left to right
         initTime = ofGetElapsedTimef();
         endTime = initTime + duration;
@@ -170,16 +161,24 @@ void ofApp::draw(){
             loopNumber ++;
         }
     }
-
-    easedFrame=ofxeasing::map_clamp(now, initTime, endTime, startRange, endRange, &ofxeasing::cubic::easeInOut);
-    // cout << easedFrame ;
-    momentMovie.setFrame(easedFrame);
     
-    momentMovie.draw(0,0,ofGetWidth(),ofGetHeight()); //draw frame of movie
-    if ( showGui ) gui.draw();
-     //ofDrawBitmapString(easedFrame(),10,10);
+    easedFrame=ofxeasing::map_clamp(thisNow, initTime, endTime, startRange, endRange, &ofxeasing::cubic::easeInOut);
+    momentMovie.setFrame(easedFrame);
+    momentMovie.update();
+    
 
+}
+
+//--------------------------------------------------------------
+void ofApp::draw(){
+    
+    if (fade) xFade(); // if fade selected in gui then call xfade function
+    
+    momentMovie.draw(0,0,800,480); //draw frame of movie
+    if ( showGui ) gui.draw();
+    
     if (showClock)clock.draw( clockRadius, clockPosLeft, clockPosTop );
+    
 }
 
 //--------------------------------------------------------------
