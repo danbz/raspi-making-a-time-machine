@@ -150,14 +150,11 @@ void ofApp::update(){
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
-    
-    //if (fade) xFade(); // if fade selected in gui then call xfade function
-    
+void ofApp::draw(){    
+    if (fade) xFade(); // if fade selected in gui then call xfade function
    
     //ofSetColor(255);
 
-    
     float now = ofGetElapsedTimef();
 
     if (ofGetElapsedTimef() > endTime) {// start a loop left to right
