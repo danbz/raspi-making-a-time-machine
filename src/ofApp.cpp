@@ -3,49 +3,53 @@
 #include "ofxGui.h"
 #include "ofxEasing.h"
 #include "ofUtils.cpp"
+#include "ofClock.h"
+#include <ctime>
 
-int loopNumber;
-int loopMax;
-int movieDuration;
-int currentFrame;
-bool playForward;
-bool showGui;
+float timeNow, timeLimit;
+int loopNumber, loopMax, movieDuration, currentFrame, fadeSpeed;
+bool playForward, showGui, showClock;
 bool xFading = false;
 int xFadeProgress = 0;
- namespace fs = std::filesystem;
-int fadeSpeed;
-
+namespace fs = std::filesystem;
 
 //easing stuff
 auto duration = 10.f;
 float initTime = 0;
 auto endTime = initTime + duration;
 //bool leftToRight = false;
-int startRange;
-int endRange;
-float endPosition;
-float easedFrame;
-int numOfFiles;
+//float endPosition, easedFrame;
+int startRange, endRange, endPosition, easedFrame, numOfFiles;
+
+//-- clock stuff
+float clockRadius;
+int clockPosLeft, clockPosTop;
+int clockSec, clockMin, clockHrs;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofBackground(0,0,0);
     ofSetVerticalSync(false);
 
+    timeLimit = 4;// this represents the five seconds you want to set as a flag to call
+    timeNow = 0;// always a good practice to define your variables in setup.
     loopNumber =0; // initialise loops to off
     loopMax=5; // max times to loop each movie - controllable via gui
     movieDuration=0;
     currentFrame=0;
     playForward = true;
+    
     //build gui group
     gui.setup( "Parameters", "settings.xml" );
-    gui.add( duration.setup( "duration", 5.0, 1.0, 10.0 ) );
+    gui.add( duration.setup( "duration", 8.0, 1.0, 20.0 ) );
     gui.add( loopMax.setup( "loopMax", 5, 1, 10 ) );
     gui.add( fadeSpeed.setup( "fadeSpeed", 5, 1, 10 ) );
     gui.add( videoAlpha.setup( "alpha", 255, 0, 255 ) );
     gui.add( fade.setup( "fade", false));
     showGui = true;
-
+    showClock = true;
+    playForward = true;
+    
     momentMovie.setPixelFormat(OF_PIXELS_NATIVE);
     // CGDisplayHideCursor(kCGDirectMainDisplay);
 
@@ -62,7 +66,6 @@ void ofApp::setup(){
     
     //read directory for number of files
     files.allowExt("mov");
-    //string path = "/Users/danbuzzo/Desktop/lapses";
     string path = "movies"; //relative to /bin/data folder
     
     files.listDir(path); // put a video path here with several video files in a folder
@@ -70,6 +73,14 @@ void ofApp::setup(){
     numOfFiles = files.size() & INT_MAX;;
 
  	this->loadNew();
+    
+    // -- clock setup
+    clockRadius = 60.0;
+    clockPosLeft = ofGetWidth()-110;
+    clockPosTop = ofGetHeight()-110;;
+    clock.setup();
+    
+   // ofHideCursor();
 }
 
 //--------------------------------------------------------------
@@ -92,9 +103,9 @@ void ofApp::loadNew(){
 	movieDuration = momentMovie.getTotalNumFrames();
     startRange= 0;//reset for easing function
     endRange = movieDuration;
-//    if (fade){
-//        xFade(); // if xfade is selected in gui then perform xfade.
-//    }
+   if (fade){
+       xFade(); // if xfade is selected in gui then perform xfade.
+   }
 }
 
 //--------------------------------------------------------------
@@ -126,12 +137,25 @@ void ofApp::update(){
     }
 
     momentMovie.update();
+    
+    //--clock updates
+    time_t t = time(0);   // get time now
+    struct tm * now = localtime( & t );
+    clockSec = now->tm_sec;
+    //  clockMin = now->tm_min;
+    clockMin = easedFrame % 60;
+    clockHrs = easedFrame/60;
+    // clockHrs = now->tm_hour;
+    clock.update(clockSec, clockMin, clockHrs);
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-   // if (fade) xFade(); // if fade selected in gui then call xfade function
+    //if (fade) xFade(); // if fade selected in gui then call xfade function
+    
+   
+    //ofSetColor(255);
 
     
     float now = ofGetElapsedTimef();
@@ -153,16 +177,20 @@ void ofApp::draw(){
     easedFrame=ofxeasing::map_clamp(now, initTime, endTime, startRange, endRange, &ofxeasing::cubic::easeInOut);
     // cout << easedFrame ;
     momentMovie.setFrame(easedFrame);
+    
     momentMovie.draw(0,0,ofGetWidth(),ofGetHeight()); //draw frame of movie
-
-    //ofDrawBitmapString(easedFrame(),10,10);
     if ( showGui ) gui.draw();
+     //ofDrawBitmapString(easedFrame(),10,10);
+
+    if (showClock)clock.draw( clockRadius, clockPosLeft, clockPosTop );
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     if (key==' ') loadNew(); // show new loop video
     if ( key == 'g' ) showGui = !showGui; // show or hide the gui
+    if ( key =='c' ) showClock = !showClock; //show of hide the clock
+
 }
 
 //--------------------------------------------------------------
