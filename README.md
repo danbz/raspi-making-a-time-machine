@@ -8,8 +8,10 @@ see https://buzzo.com/making-a-time-machine/ for more information.
 
  * 'g' show or hide gui;
  * 'c' show or hide clock overlay
- * 'space' load new video clip;
+ * 'space' load new video clip// or touchscreen tap
  
  
 https://player.vimeo.com/video/232880338 tests for 'making a time machine' on raspberry pi on vimeo.com
  
+ 
+intergrated ofcRPiTouch for using the RaspberryPi 7" Touch Dipsplay https://github.com/apparentVJ/ofxRPiTouch/
