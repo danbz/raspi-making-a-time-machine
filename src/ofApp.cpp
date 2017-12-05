@@ -31,6 +31,8 @@ void ofApp::setup(){
     ofBackground(0,0,0);
     ofSetVerticalSync(false);
 
+    ofSetFrameRate(15);
+    
     timeLimit = 4;// this represents the five seconds you want to set as a flag to call
     timeNow = 0;// always a good practice to define your variables in setup.
     loopNumber =0; // initialise loops to off
@@ -50,7 +52,7 @@ void ofApp::setup(){
     showClock = true;
     playForward = true;
     
-    momentMovie.setPixelFormat(OF_PIXELS_NATIVE);
+    //momentMovie.setPixelFormat(OF_PIXELS_NATIVE);
 
     //--- easing stuff
     endPosition = ofGetWidth() - 40;
@@ -78,9 +80,9 @@ void ofApp::setup(){
     clockOffset = ofRandom(720);
     clock.setup();
     
-    //ofHideCursor();
+    ofHideCursor();
     
-    touch.init("/dev/input/event0");	// change according to your setup (evdev)
+    touch.init("/dev/input/event2");	// change according to your setup (evdev)
     ofLog()<<touch.getName();
     touchNumber = touch.getAbsTrackingID();
     
@@ -98,9 +100,12 @@ void ofApp::loadNew(){
     vidImage.grabScreen(0,0, ofGetWidth(), ofGetHeight() ); // grab last frame of current video
     string newMovie = files.getPath(ofRandom(numOfFiles));
     std::cout << newMovie <<endl;
+    
+    momentMovie.setUseTexture(false);
+    
     momentMovie.load(newMovie);
 	momentMovie.setLoopState(OF_LOOP_NONE);
- 
+   // momentMovie.play();
 	movieDuration = momentMovie.getTotalNumFrames();
     startRange= 0;//reset for easing function
     endRange = movieDuration;
@@ -175,8 +180,11 @@ void ofApp::update(){
     }
     
     easedFrame=ofxeasing::map_clamp(thisNow, initTime, endTime, startRange, endRange, &ofxeasing::cubic::easeInOut);
-    momentMovie.setFrame(easedFrame);
-    momentMovie.update();
+   momentMovie.setFrame(easedFrame);
+    //momentMovie.play();
+   //momentMovie.update();
+    
+    //cout << easedFrame << " : " << momentMovie.getCurrentFrame() << endl;
 
 }
 
@@ -186,7 +194,7 @@ void ofApp::draw(){
     //if (fade) xFade(); // if fade selected in gui then call xfade function
     
     momentMovie.draw(0,0,800,480); //draw frame of movie
-  
+
     if ( showGui ) gui.draw();
     
     if (showClock)clock.draw( clockRadius, clockPosLeft, clockPosTop );
@@ -194,7 +202,10 @@ void ofApp::draw(){
 //    stringstream statusStream;
 //    ofSetColor(255,255,255);
 //    
-//    statusStream << "X: " << touch.getCoordTouch().x << endl
+//   // int recalledFrame = momentMovie.getCurrentFrame();
+//    
+//    statusStream  << easedFrame << " : " << momentMovie.getCurrentFrame() << endl
+//    << "X: " << touch.getCoordTouch().x << endl
 //    << "Y: " << touch.getCoordTouch().y << endl
 //    << "BTN: " << touch.getButton() << endl
 //    << "mtSlot: " << touch.getMTSlot() + 1 << endl
