@@ -4,7 +4,12 @@ for dynamic manipulation of time-lapse video
 in C++ using openFrameworks toolkit http://openframeworks.cc
 for delivery on multiple Raspberry Pi devices.
 
-see http://www.buzzo.com for more information.
+see https://buzzo.com/making-a-time-machine/ for more information.
 
  * 'g' show or hide gui;
+ * 'c' show or hide clock overlay
  * 'space' load new video clip;
+ 
+ 
+https://player.vimeo.com/video/232880338 tests for 'making a time machine' on raspberry pi on vimeo.com
+ 
