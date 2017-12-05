@@ -15,3 +15,7 @@ https://player.vimeo.com/video/232880338 tests for 'making a time machine' on ra
  
  
 intergrated ofxRPiTouch for using the RaspberryPi 7" Touch Dipsplay https://github.com/apparentVJ/ofxRPiTouch/
+
+
+experiment swapping out ofxVideoPlayer for https://github.com/jvcleave/ofxOMXPlayer
+
