@@ -22,7 +22,7 @@ auto endTime = initTime + duration;
 int startRange, endRange, endPosition, easedFrame, numOfFiles;
 
 //-- clock stuff
-float clockRadius;
+float clockRadius, thisNow;
 int clockPosLeft, clockPosTop;
 int clockSec, clockMin, clockHrs, clockOffset;
 
@@ -48,7 +48,7 @@ void ofApp::setup(){
     gui.add( fadeSpeed.setup( "fadeSpeed", 5, 1, 10 ) );
     gui.add( videoAlpha.setup( "alpha", 255, 0, 255 ) );
     gui.add( fade.setup( "fade", false));
-    showGui = true;
+    showGui = false;
     showClock = true;
     playForward = true;
     
@@ -90,6 +90,7 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::loadNew(){
+    momentMovie.closeMovie();
     loopNumber =0; // initialise loops to zero, frames to zero and set fading and forward
     currentFrame=0;
     playForward = true;
@@ -101,7 +102,7 @@ void ofApp::loadNew(){
     string newMovie = files.getPath(ofRandom(numOfFiles));
     std::cout << newMovie <<endl;
     
-    momentMovie.setUseTexture(false);
+    momentMovie.setUseTexture(true);
     
     momentMovie.load(newMovie);
 	momentMovie.setLoopState(OF_LOOP_NONE);
@@ -163,7 +164,7 @@ void ofApp::update(){
     // clockHrs = now->tm_hour;
     clock.update(clockSec, clockMin, clockHrs);
     
-    float thisNow = ofGetElapsedTimef();
+    thisNow = ofGetElapsedTimef();
     
     if (ofGetElapsedTimef() > endTime) {// start a loop left to right
         initTime = ofGetElapsedTimef();
@@ -184,8 +185,6 @@ void ofApp::update(){
     //momentMovie.play();
    //momentMovie.update();
     
-    //cout << easedFrame << " : " << momentMovie.getCurrentFrame() << endl;
-
 }
 
 //--------------------------------------------------------------
