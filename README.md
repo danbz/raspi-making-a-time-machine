@@ -14,4 +14,4 @@ see https://buzzo.com/making-a-time-machine/ for more information.
 https://player.vimeo.com/video/232880338 tests for 'making a time machine' on raspberry pi on vimeo.com
  
  
-intergrated ofcRPiTouch for using the RaspberryPi 7" Touch Dipsplay https://github.com/apparentVJ/ofxRPiTouch/
+intergrated ofxRPiTouch for using the RaspberryPi 7" Touch Dipsplay https://github.com/apparentVJ/ofxRPiTouch/
